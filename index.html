@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DSA Roadmap — Coding + MCQ Practice</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --primary:#0b63d6;
+      --muted:#6b7280;
+      --success:#16a34a;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      --radius:14px;
+      --shadow: 0 8px 24px rgba(15,23,42,0.06);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      background: linear-gradient(180deg,#eef6ff 0%, #f6f8fb 100%);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:22px;
+    }
+
+    .app{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:20px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    @media (max-width:900px){
+      .app{grid-template-columns:1fr; padding-bottom:40px}
+    }
+
+    .sidebar{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .logo{display:flex;gap:12px;align-items:center}
+    .mark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--primary),#3b82f6);color:white;display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{font-size:16px;margin:0}
+    p.muted{margin:0;color:var(--muted);font-size:13px}
+
+    .progress-wrap{margin-top:12px}
+    .progress-bar{height:12px;width:100%;background:#eef2ff;border-radius:999px;overflow:hidden}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),#06b6d4);width:0%;transition:width .4s ease}
+    .stats{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:8px}
+
+    .topics{margin-top:10px;display:grid;gap:8px;max-height:58vh;overflow:auto;padding-right:6px}
+    .topic-card{display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.9));border-radius:10px;padding:10px 12px;cursor:pointer;transition:transform .12s ease}
+    .topic-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(2,6,23,0.06)}
+    .topic-left{display:flex;gap:10px;align-items:center}
+    .topic-num{width:36px;height:36px;border-radius:9px;background:rgba(11,99,214,0.06);display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700}
+    .topic-title{font-size:14px;margin:0;color:#081026}
+    .status-badge{font-size:12px;padding:6px 8px;border-radius:999px}
+    .status-incomplete{background:#f8fafc;color:var(--muted);border:1px solid #eef2ff}
+    .status-progress{background:linear-gradient(90deg,#fff7ed,#ffedd5); color:var(--warning); border:1px solid #ffedd5}
+    .status-complete{background:linear-gradient(90deg,#ecfdf5,#f0fdf4); color:var(--success); border:1px solid #bbf7d0}
+
+    .main{display:flex;flex-direction:column;gap:18px}
+    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+    .card h2{margin:0 0 6px 0;font-size:18px}
+    .card p.muted{margin:0 0 12px 0}
+
+    .topic-panel{display:flex;flex-direction:column;gap:12px}
+    .tabbar{display:flex;gap:8px;align-items:center}
+    .tab{padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600}
+    .tab.active{background:linear-gradient(90deg,var(--primary),#06b6d4);color:white;box-shadow:0 8px 20px rgba(11,99,214,0.12)}
+    .tab.inactive{background:transparent;border:1px solid #eef3ff;color:var(--muted)}
+
+    .qblock{background:#fbfdff;border-radius:10px;padding:12px;border:1px solid #eef3ff}
+    .q-text{font-weight:700;margin:0 0 8px 0}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* coding area */
+    .code-area{display:flex;flex-direction:column;gap:8px}
+    textarea.code{
+      min-height:120px;
+      width:100%;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #e6eefc;
+      resize:vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      font-size:13px;
+      background:linear-gradient(180deg,#fff,#fbfdff);
+    }
+    .code-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+
+    /* MCQ */
+    .options{display:flex;flex-direction:column;gap:8px}
+    .option{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;border:1px solid transparent;cursor:pointer;background:white;transition:all .12s ease}
+    .option:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(2,6,23,0.04)}
+    .option input{margin-right:8px}
+    .option.correct{border-color:rgba(16,185,129,0.12);background:linear-gradient(90deg, rgba(16,185,129,0.03), rgba(255,255,255,0));}
+    .option.wrong{border-color:rgba(239,68,68,0.08);background:linear-gradient(90deg, rgba(239,68,68,0.02), rgba(255,255,255,0));}
+
+    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    button.primary{background:linear-gradient(90deg,var(--primary),#06b6d4);color:white;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;box-shadow: 0 8px 20px rgba(11,99,214,0.12)}
+    button.ghost{background:transparent;border:1px solid #e6eefc;padding:9px 12px;border-radius:10px;cursor:pointer}
+
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+
+    @media (max-width:420px){
+      .topic-num{width:34px;height:34px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar card" aria-label="Roadmap navigation">
+      <div class="logo">
+        <div class="mark">DSA</div>
+        <div>
+          <h1>Roadmap for DSA — Practice</h1>
+          <p class="muted">Coding + MCQ — saved locally in your browser.</p>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="small">Overall Progress</div>
+          <div id="overallPercent" class="small">0%</div>
+        </div>
+        <div class="progress-bar" aria-hidden="true">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <div class="stats">
+          <div id="countComplete">Complete: 0</div>
+          <div id="countInProgress">In Progress: 0</div>
+          <div id="countIncomplete">Incomplete: 0</div>
+        </div>
+      </div>
+
+      <div class="topics" id="topicsList" role="list" aria-label="Topics"></div>
+
+      <div style="margin-top:12px; display:flex;gap:8px;">
+        <button class="primary" id="resetAll">Reset All</button>
+        <button class="ghost" id="exportBtn">Export</button>
+      </div>
+
+      <div class="small" style="margin-top:10px;color:var(--muted)">No account required — progress stored locally.</div>
+    </aside>
+
+    <main class="main">
+      <div class="card" id="mainCard">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <div>
+            <h2 id="mainTitle">Select a topic to start</h2>
+            <p class="muted" id="mainSubtitle">Each topic has 5 coding questions (default) and 5 MCQs.</p>
+          </div>
+          <div style="text-align:right">
+            <div class="small">Selected Topic</div>
+            <div id="selectedName" style="font-weight:700">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="quizCard" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="tabbar" role="tablist">
+            <div id="tabCoding" class="tab active" role="tab" tabindex="0">Coding Questions</div>
+            <div id="tabMCQ" class="tab inactive" role="tab" tabindex="0">MCQ</div>
+          </div>
+          <div style="text-align:right">
+            <div class="small" id="topicProgressText">Answered 0 / 10</div>
+            <div class="small" id="lastSavedText">Last saved: —</div>
+          </div>
+        </div>
+
+        <div class="topic-panel" id="topicPanel">
+          <!-- questions go here -->
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+          <div class="small" id="topicInfo">Coding view is default. MCQs available under the MCQ tab.</div>
+          <div class="controls">
+            <button class="ghost" id="showAnswers">Show Correct MCQ Answers</button>
+            <button class="primary" id="saveProgress">Save (auto)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="statsCard">
+        <h2>Quick Stats</h2>
+        <p class="muted">Per-topic quick actions and progress overview</p>
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    /* ===== DATA: topics with coding prompts + MCQ =====
+       For brevity I provide short, practical coding prompts for each topic.
+       You can edit prompts to be more specific later.
+    */
+    const TOPICS = [
+      { id:1, title:"Learn a Programming Language",
+        coding:[
+          "Write a Hello World program in your chosen language.",
+          "Read a list of integers from input and print their sum.",
+          "Implement a function that reverses a string.",
+          "Demonstrate reading and writing a file (small example).",
+          "Write a small program that uses functions and prints formatted output."
+        ],
+        qs:[
+          { q:"Which is a compiled language among these?", opts:["Python","C++","JavaScript"], a:1 },
+          { q:"Which uses indentation for block delimiting?", opts:["C","Python","Java"], a:1 },
+          { q:"Which language runs primarily in browsers?", opts:["C#","Go","JavaScript"], a:2 },
+          { q:"Which language is strongly typed at compile time?", opts:["Java","PHP","Bash"], a:0 },
+          { q:"Which one is commonly used for system programming?", opts:["Ruby","C","R"], a:1 }
+        ]
+      },
+      { id:2, title:"Arrays & Strings",
+        coding:[
+          "Given an array, find the maximum subarray sum (Kadane's algorithm).",
+          "Reverse a string in-place (no extra array).",
+          "Remove duplicates from a sorted array in-place.",
+          "Rotate an array by k positions.",
+          "Check if two strings are anagrams of each other."
+        ],
+        qs:[
+          { q:"What is time complexity to access element by index in array?", opts:["O(1)","O(n)","O(log n)"], a:0 },
+          { q:"Which is mutable in many languages?", opts:["String (Java)","Array (JS)","Tuple (Python)"], a:1 },
+          { q:"What operation finds substring occurrence?", opts:["Split","Search/IndexOf","Map"], a:1 },
+          { q:"Reversing a string in-place uses what space (typical)?", opts:["O(1)","O(n)","O(log n)"], a:0 },
+          { q:"Concatenating many strings best uses:", opts:["Repeated +","String builder/Buffer","Using recursion"], a:1 }
+        ]
+      },
+      { id:3, title:"Linked List",
+        coding:[
+          "Implement a singly linked list with insertAtHead, insertAtTail, and printList.",
+          "Reverse a singly linked list (iterative).",
+          "Detect cycle in a linked list using Floyd's algorithm.",
+          "Merge two sorted linked lists into one sorted list.",
+          "Delete the nth node from the end of a singly linked list."
+        ],
+        qs:[
+          { q:"Singly Linked List node contains:", opts:["Value & next","Value & prev","Only next"], a:0 },
+          { q:"To insert at head of singly linked list is:", opts:["O(n)","O(1)","O(log n)"], a:1 },
+          { q:"Reverse a singly linked list can be done in:", opts:["O(n) time & O(1) space","O(n^2)","O(log n)"], a:0 },
+          { q:"To detect cycle in list use:", opts:["Binary search","Floyd's tortoise and hare","Dijkstra"], a:1 },
+          { q:"Doubly linked list supports:", opts:["fast random access","easy prev traversal","no pointers"], a:1 }
+        ]
+      },
+      { id:4, title:"Stack & Queue",
+        coding:[
+          "Implement stack with push/pop/peek operations using an array or list.",
+          "Use a queue to perform BFS on a simple adjacency list.",
+          "Implement a queue using two stacks.",
+          "Check balanced parentheses using a stack.",
+          "Implement circular queue using fixed-size array."
+        ],
+        qs:[
+          { q:"Stack follows which discipline?", opts:["FIFO","LIFO","Priority"], a:1 },
+          { q:"Queue best for BFS traversal is:", opts:["Stack","Queue","Hash"], a:1 },
+          { q:"Pop from empty stack results in:", opts:["Underflow","Overflow","Sort"], a:0 },
+          { q:"Circular queue helps to:", opts:["waste memory","reuse array space","increase time"], a:1 },
+          { q:"Call stack is used for:", opts:["I/O operations","function calls and returns","graphics"], a:1 }
+        ]
+      },
+      { id:5, title:"Hashing & Heap",
+        coding:[
+          "Implement a simple frequency map using a hash/dictionary.",
+          "Use a heap to find k largest elements in an array.",
+          "Design a basic LRU cache using hashmap + doubly-linked list.",
+          "Implement collision handling sketches (conceptual) using chaining.",
+          "Use a heap to merge k sorted arrays."
+        ],
+        qs:[
+          { q:"Hash table average lookup time:", opts:["O(1)","O(n)","O(log n)"], a:0 },
+          { q:"Heap property ensures:", opts:["sorted array","parent <= children (min-heap)","unique elements"], a:1 },
+          { q:"Hash collision can be handled by:", opts:["chaining","sorting","merging"], a:0 },
+          { q:"Priority queue is typically implemented with:", opts:["linked list","heap","stack"], a:1 },
+          { q:"Load factor measures:", opts:["collision count","hash table fullness","heap height"], a:1 }
+        ]
+      },
+      { id:6, title:"Recursion & Backtracking",
+        coding:[
+          "Write recursive function for factorial and Fibonacci (with/without memo).",
+          "Solve subset-sum using recursion (backtracking).",
+          "Implement N-Queens solver (print one valid board).",
+          "Generate all permutations of a list recursively.",
+          "Solve combination sum (unique combinations to target)."
+        ],
+        qs:[
+          { q:"Base case in recursion prevents:", opts:["stack overflow","heap overflow","compilation"], a:0 },
+          { q:"Backtracking is useful for:", opts:["sorting arrays","combinatorial search","simple arithmetic"], a:1 },
+          { q:"Recursion depth equals:", opts:["call stack frames","array length","hash buckets"], a:0 },
+          { q:"N-Queens problem best solved by:", opts:["greedy","backtracking","binary search"], a:1 },
+          { q:"Memoization avoids:", opts:["duplicate recursion","stack frames","compilation"], a:0 }
+        ]
+      },
+      { id:7, title:"Searching & Sorting",
+        coding:[
+          "Implement binary search on a sorted array.",
+          "Implement merge sort recursively.",
+          "Implement quicksort (Lomuto or Hoare partition).",
+          "Given two sorted arrays, merge them into one sorted array.",
+          "Count inversions in an array using divide & conquer."
+        ],
+        qs:[
+          { q:"Binary search requires:", opts:["sorted array","hash table","stack"], a:0 },
+          { q:"Average quicksort time:", opts:["O(n log n)","O(n^2)","O(n)"], a:0 },
+          { q:"Stable sort preserves:", opts:["relative order of equal items","ascending only","unique keys"], a:0 },
+          { q:"Linear search worst-case:", opts:["O(n)","O(log n)","O(1)"], a:0 },
+          { q:"Merge sort extra space:", opts:["O(1)","O(n)","O(log n)"], a:1 }
+        ]
+      },
+      { id:8, title:"Mathematical Algorithms",
+        coding:[
+          "Implement Euclidean algorithm for GCD.",
+          "Implement fast modular exponentiation (powmod).",
+          "Sieve of Eratosthenes: list primes up to n.",
+          "Find modular inverse using extended GCD (when exists).",
+          "Implement basic combinatorics function (nCr using Pascal)."
+        ],
+        qs:[
+          { q:"GCD of two numbers can be found using:", opts:["Sieve","Euclidean algorithm","KMP"], a:1 },
+          { q:"Fast exponentiation reduces complexity to:", opts:["O(n)","O(log n)","O(n log n)"], a:1 },
+          { q:"Sieve of Eratosthenes is for:", opts:["GCD","primes","sorting"], a:1 },
+          { q:"Modular inverse exists for a and m if:", opts:["gcd(a,m)=1","a<m","a>m"], a:0 },
+          { q:"Number theory used heavily in:", opts:["UI design","cryptography","web servers"], a:1 }
+        ]
+      },
+      { id:9, title:"Bitwise Operations & Tricks",
+        coding:[
+          "Swap two integers without temporary variable using XOR.",
+          "Check if a number is power of two using bitwise ops.",
+          "Count set bits in an integer (builtin or loop).",
+          "Toggle the ith bit of a number.",
+          "Compute x & (-x) and explain its meaning in code comments."
+        ],
+        qs:[
+          { q:"x & 1 tests if x is:", opts:["even","odd","prime"], a:1 },
+          { q:"x ^ x equals:", opts:["x","0","1"], a:1 },
+          { q:"Left shift x<<1 is like:", opts:["divide by 2","multiply by 2","modulo"], a:1 },
+          { q:"To toggle a bit use:", opts:["AND","XOR","OR"], a:1 },
+          { q:"Checking power of two: (x & (x-1)) == 0 for:", opts:["all numbers","powers of two","odd numbers"], a:1 }
+        ]
+      },
+      { id:10, title:"Greedy Algorithms",
+        coding:[
+          "Implement activity selection (select max non-overlapping intervals).",
+          "Solve fractional knapsack using greedy by value/weight ratio.",
+          "Greedy coin change for canonical coin systems.",
+          "Construct Huffman tree for characters with frequencies.",
+          "Implement interval scheduling by earliest finishing time."
+        ],
+        qs:[
+          { q:"Greedy algorithm picks:", opts:["global optimum after full search","local optimum at each step","no choice"], a:1 },
+          { q:"Activity selection problem solved by:", opts:["DP","greedy","backtracking"], a:1 },
+          { q:"Huffman coding uses greedy to:", opts:["maximize height","minimize weighted length","sort alphabetically"], a:1 },
+          { q:"Fractional knapsack uses:", opts:["DP","greedy","graph"], a:1 },
+          { q:"Greedy fails when:", opts:["matroid property absent","data sorted","array empty"], a:0 }
+        ]
+      },
+      { id:11, title:"Dynamic Programming",
+        coding:[
+          "Compute Fibonacci with memoization (top-down) and tabulation (bottom-up).",
+          "0/1 Knapsack DP implementation.",
+          "Longest Common Subsequence (LCS) using DP table.",
+          "Coin change (number of ways) with DP.",
+          "Longest Increasing Subsequence (n log n) or DP O(n^2) solution."
+        ],
+        qs:[
+          { q:"DP avoids recomputation by:", opts:["caching/memoization","sorting","hashing"], a:0 },
+          { q:"DP is used when problem has:", opts:["overlapping subproblems & optimal substructure","no recursion","only greedy"], a:0 },
+          { q:"Fibonacci naive recursion is:", opts:["O(n)","O(2^n)","O(log n)"], a:1 },
+          { q:"Tabulation is:", opts:["top-down","bottom-up","parallel"], a:1 },
+          { q:"Knapsack 0/1 typical complexity:", opts:["O(n log n)","O(nW)","O(1)"], a:1 }
+        ]
+      },
+      { id:12, title:"Advanced DP Techniques",
+        coding:[
+          "Implement bitmask DP for traveling small n states example.",
+          "Sketch DP optimization using divide & conquer for convexity.",
+          "Digit DP: count numbers in range satisfying property (simple example).",
+          "Convex hull trick: implement simple monotone queue variant for linear DP.",
+          "Tree DP: compute dp[node] from children (example problem)."
+        ],
+        qs:[
+          { q:"Divide & Conquer DP uses:", opts:["monotone queues","CDQ or divide&conquer optimization","binary lifting"], a:1 },
+          { q:"Convex hull trick optimizes:", opts:["linear dp transitions","graph traversal","string matching"], a:0 },
+          { q:"Digit DP typical domain:", opts:["graphs","numbers with constraints","hashing"], a:1 },
+          { q:"Bitmask DP used for:", opts:["small n subset states","huge n lists","UI layouts"], a:0 },
+          { q:"DP on trees often uses:", opts:["topological sort","dfs + dp","binary search"], a:1 }
+        ]
+      },
+      { id:13, title:"Graph Algorithms",
+        coding:[
+          "Implement BFS and print order for a simple graph.",
+          "Implement DFS and detect cycles in directed graph.",
+          "Implement Dijkstra's algorithm (priority queue) for shortest paths.",
+          "Implement Bellman-Ford for graphs with negative edges.",
+          "Build adjacency list and run basic traversal for connectivity."
+        ],
+        qs:[
+          { q:"BFS finds:", opts:["shortest path in unweighted graph","minimum spanning tree","max flow"], a:0 },
+          { q:"DFS useful for:", opts:["topological sort & cycles detection","sorting numbers","hashing"], a:0 },
+          { q:"Dijkstra requires:", opts:["no negative edges","acyclic graph","only small graphs"], a:0 },
+          { q:"Bellman-Ford handles:", opts:["positive edges only","negative edges & cycles detection","only trees"], a:1 },
+          { q:"Adjacency list vs matrix: list is:", opts:["better for dense graphs","better for sparse graphs","same"], a:1 }
+        ]
+      },
+      { id:14, title:"Advanced Graph Algorithms",
+        coding:[
+          "Implement Tarjan's algorithm to find SCCs.",
+          "Implement Kosaraju's algorithm to find SCCs.",
+          "Find articulation points in an undirected graph.",
+          "Find bridges in an undirected graph using DFS low-link.",
+          "Implement binary lifting for LCA queries."
+        ],
+        qs:[
+          { q:"Tarjan's algorithm finds:", opts:["shortest path","strongly connected components","mst"], a:1 },
+          { q:"Kosaraju also finds:", opts:["SCC","BFS tree","bridges"], a:0 },
+          { q:"Articulation point is a vertex whose removal:", opts:["increases components","decreases edges","makes graph directed"], a:0 },
+          { q:"Bridges are edges whose removal:", opts:["disconnects graph","sorts vertices","compresses graph"], a:0 },
+          { q:"Lowest Common Ancestor can be found by:", opts:["binary lifting","greedy","heap"], a:0 }
+        ]
+      },
+      { id:15, title:"DSU & MST",
+        coding:[
+          "Implement a Disjoint Set Union with union by rank and path compression.",
+          "Implement Kruskal's algorithm using DSU to build MST.",
+          "Implement Prim's algorithm using a priority queue.",
+          "Demonstrate union-find usage with connected components example.",
+          "Modify DSU to support component size queries (maintain size)."
+        ],
+        qs:[
+          { q:"Disjoint Set Union supports:", opts:["range queries","union & find","sorting"], a:1 },
+          { q:"Kruskal's algorithm uses:", opts:["BFS","DSU","DP"], a:1 },
+          { q:"Prim's algorithm is similar to:", opts:["Dijkstra","QuickSort","HeapSort"], a:0 },
+          { q:"Path compression helps to:", opts:["increase height","flatten trees for faster find","change values"], a:1 },
+          { q:"MST minimizes:", opts:["number of nodes","sum of edge weights","graph diameter"], a:1 }
+        ]
+      },
+      { id:16, title:"Network Flow Algorithms",
+        coding:[
+          "Implement Ford-Fulkerson basic algorithm with DFS (small graphs).",
+          "Implement Edmonds-Karp (BFS) for augmenting paths.",
+          "Build residual graph and show augmenting path updates.",
+          "Use max-flow to solve bipartite matching (construction + flow).",
+          "Compute min-cut after computing max-flow (reachable set)."
+        ],
+        qs:[
+          { q:"Max flow problem aims to:", opts:["minimize flow","maximize flow from s to t","find shortest path"], a:1 },
+          { q:"Edmonds-Karp is BFS-based variant of:", opts:["Ford-Fulkerson","Dijkstra","Prim"], a:0 },
+          { q:"Residual graph helps to:", opts:["track capacities","sort edges","hash nodes"], a:0 },
+          { q:"Min cut relates to max flow via:", opts:["no relation","max-flow min-cut theorem","Euler"], a:1 },
+          { q:"Dinic's algorithm improves using:", opts:["level graph and blocking flows","binary search","dp"], a:0 }
+        ]
+      },
+      { id:17, title:"String Algorithms",
+        coding:[
+          "Implement KMP prefix function and use it to find pattern occurrences.",
+          "Implement a trie and basic insert/search operations.",
+          "Compute Z-array and use it to find pattern matches.",
+          "Build suffix array (naive or efficient) and LCP.",
+          "Implement Rabin-Karp rolling hash for pattern search."
+        ],
+        qs:[
+          { q:"KMP algorithm finds:", opts:["shortest path","pattern occurrences efficiently","primes"], a:1 },
+          { q:"Trie is used for:", opts:["graphs","prefix lookups","sorting numbers"], a:1 },
+          { q:"Z-algorithm computes:", opts:["suffix array","Z array for prefix matches","mst"], a:1 },
+          { q:"Suffix array useful for:", opts:["string queries & lcp","image processing","heap sort"], a:0 },
+          { q:"Rabin-Karp uses:", opts:["hashing for pattern search","greedy","dp"], a:0 }
+        ]
+      },
+      { id:18, title:"Computational Geometry",
+        coding:[
+          "Implement convex hull (Graham scan) for points.",
+          "Compute orientation (cross product) helper and use it.",
+          "Find closest pair of points (naive O(n^2) or divide & conquer).",
+          "Point-in-polygon test using ray casting.",
+          "Compute polygon area using shoelace formula."
+        ],
+        qs:[
+          { q:"Convex hull returns:", opts:["all interior points","smallest convex polygon enclosing points","sorted list"], a:1 },
+          { q:"Cross product sign detects:", opts:["orientation of points","primality","distance"], a:0 },
+          { q:"Closest pair naive is:", opts:["O(n log n)","O(n^2)","O(n)"], a:1 },
+          { q:"Graham scan computes:", opts:["convex hull","shortest path","mst"], a:0 },
+          { q:"Point-in-polygon test often uses:", opts:["ray casting","binary lifting","dp"], a:0 }
+        ]
+      },
+      { id:19, title:"Segment Trees & Fenwick Tree",
+        coding:[
+          "Implement Fenwick tree for prefix sums and point updates.",
+          "Implement segment tree for range sum queries and point update.",
+          "Implement segment tree with lazy propagation for range updates.",
+          "Use Fenwick tree to count inversions (coordinate compression).",
+          "Implement persistent segment tree (conceptual/simple version)."
+        ],
+        qs:[
+          { q:"Fenwick tree is used for:", opts:["range queries prefix sums","string matching","graph traversal"], a:0 },
+          { q:"Segment tree supports:", opts:["range queries & range updates","only point queries","hashing"], a:0 },
+          { q:"Fenwick tree complexity per op:", opts:["O(log n)","O(n)","O(1)"], a:0 },
+          { q:"Segment tree size is roughly:", opts:["2n","4n","n/2"], a:1 },
+          { q:"Lazy propagation helps to:", opts:["defer updates","immediately apply all updates","store strings"], a:0 }
+        ]
+      },
+      { id:20, title:"Sparse Table & Binary Lifting",
+        coding:[
+          "Build sparse table for RMQ (min) on static array.",
+          "Implement binary lifting to compute LCA between two nodes.",
+          "Use sparse table to answer idempotent queries (min/gcd).",
+          "Precompute up/jump tables for binary lifting example.",
+          "Explain memory/time tradeoffs and implement small example."
+        ],
+        qs:[
+          { q:"Sparse table answers:", opts:["range gcd/min queries on immutable arrays","dynamic updates","sorting"], a:0 },
+          { q:"Binary lifting finds:", opts:["LCA in O(log n)","shortest path","prime factors"], a:0 },
+          { q:"Sparse table build time:", opts:["O(n log n)","O(n)","O(1)"], a:0 },
+          { q:"Binary lifting storage:", opts:["O(n log n)","O(n)","O(1)"], a:0 },
+          { q:"Sparse table requires:", opts:["idempotent operation","dynamic updates","heap"], a:0 }
+        ]
+      },
+      { id:21, title:"Advanced Tree Techniques",
+        coding:[
+          "Implement Euler tour of a tree and flatten it to an array.",
+          "Implement heavy-light decomposition (HLD) skeleton to handle path queries.",
+          "Implement centroid decomposition for divide & conquer on trees (skeleton).",
+          "Implement Link-Cut tree demonstration (conceptual/simple ops).",
+          "Use tree DP to compute sizes and depth-based aggregates."
+        ],
+        qs:[
+          { q:"Heavy-light decomposition helps with:", opts:["graph coloring","path queries on trees","sorting"], a:1 },
+          { q:"Euler tour technique flattens tree to:", opts:["array for range queries","graph for BFS","stack for recursion"], a:0 },
+          { q:"Centroid decomposition useful for:", opts:["divide & conquer on trees","sorting","hashing"], a:0 },
+          { q:"Link-Cut trees support:", opts:["amortized dynamic tree ops","static arrays","string matching"], a:0 },
+          { q:"Tree centroid minimizes:", opts:["max subtree size","height","leaves"], a:0 }
+        ]
+      },
+      { id:22, title:"Tries & Suffix Trees",
+        coding:[
+          "Implement trie for insert/search and prefix counting.",
+          "Build suffix array naively and demonstrate queries.",
+          "Implement Ukkonen's algorithm (outline / partial implementation).",
+          "Implement compressed trie (radix/trie compression) skeleton.",
+          "Use suffix array + LCP for substring count queries."
+        ],
+        qs:[
+          { q:"Trie complexity per lookup:", opts:["O(length of key)","O(log n)","O(1)"], a:0 },
+          { q:"Suffix tree helps in:", opts:["fast substring queries","sorting numbers","prime testing"], a:0 },
+          { q:"Tries are memory heavy because of:", opts:["node children per alphabet","recursion","hash collisions"], a:0 },
+          { q:"Ukkonen's algorithm builds suffix tree in:", opts:["O(n^2)","O(n)","O(log n)"], a:1 },
+          { q:"Compressed trie reduces:", opts:["space by merging single-child chains","time complexity","number of queries"], a:0 }
+        ]
+      },
+      { id:23, title:"Game Theory & Nim Game",
+        coding:[
+          "Implement Nim game solver using xor (nim-sum).",
+          "Compute Grundy numbers for a small impartial game example.",
+          "Model a take-away game and compute winning positions.",
+          "Use Sprague-Grundy to combine subgames (small example).",
+          "Write a small interactive CLI to play Nim vs random opponent."
+        ],
+        qs:[
+          { q:"Nim-sum uses:", opts:["xor of pile sizes","sum of squares","gcd"], a:0 },
+          { q:"If nim-sum == 0 position is:", opts:["losing","winning","draw"], a:0 },
+          { q:"Sprague-Grundy theorem relates to:", opts:["dp","games as impartial games","hashing"], a:1 },
+          { q:"Impartial games have:", opts:["same moves for both players","different moves","no moves"], a:0 },
+          { q:"Computing Grundy numbers is like:", opts:["mex of reachable states","binary lifting","sorting"], a:0 }
+        ]
+      },
+      { id:24, title:"Approximation & Randomized Algorithms",
+        coding:[
+          "Implement randomized quickselect to find k-th smallest (expected linear).",
+          "Implement Monte Carlo approximation for Pi (random sampling).",
+          "Implement simple randomized hashing for string matching demonstration.",
+          "Design a greedy approximation for a knapsack-like problem and analyze ratio.",
+          "Implement reservoir sampling for streaming random sample."
+        ],
+        qs:[
+          { q:"Randomized algorithm may use:", opts:["randomness for decisions","nothing random","only DP"], a:0 },
+          { q:"Monte Carlo algorithms give:", opts:["probabilistic correctness","deterministic results","no output"], a:0 },
+          { q:"Approximation algorithm aims to:", opts:["exact optimum","near-optimal in polynomial time","always optimal"], a:1 },
+          { q:"Hashing with randomization helps in:", opts:["collision reduction & speed","sorting","graph traversal"], a:0 },
+          { q:"Las Vegas algorithms always:", opts:["return correct result but runtime may vary","fail sometimes","return wrong result often"], a:0 }
+        ]
+      }
+    ];
+
+    /* STORAGE */
+    const STORAGE_KEY = 'dsaRoadmap_coding_mcq_v1';
+
+    function loadState(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {};
+      try{ return JSON.parse(raw); }catch(e){ return {}; }
+    }
+    function saveState(st){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+    }
+
+    /* initialize state: for each topic: codingAnswers: array of strings, mcqAnswers: array of ints/null, savedAt */
+    let state = loadState();
+    function ensureState(){
+      if(!state.topics){
+        state.topics = {};
+      }
+      TOPICS.forEach(t=>{
+        if(!state.topics[t.id]){
+          state.topics[t.id] = {
+            codingAnswers: Array(t.coding.length).fill(""),
+            mcqAnswers: Array(t.qs.length).fill(null),
+            savedAt: Date.now()
+          };
+        } else {
+          // ensure arrays of right size if structure changed
+          const s = state.topics[t.id];
+          if(!s.codingAnswers || s.codingAnswers.length !== t.coding.length) s.codingAnswers = Array(t.coding.length).fill("");
+          if(!s.mcqAnswers || s.mcqAnswers.length !== t.qs.length) s.mcqAnswers = Array(t.qs.length).fill(null);
+          if(!s.savedAt) s.savedAt = Date.now();
+        }
+      });
+      saveState(state);
+    }
+    ensureState();
+
+    /* UI elements */
+    const topicsList = document.getElementById('topicsList');
+    const mainTitle = document.getElementById('mainTitle');
+    const selectedName = document.getElementById('selectedName');
+    const quizCard = document.getElementById('quizCard');
+    const topicPanel = document.getElementById('topicPanel');
+    const topicProgressText = document.getElementById('topicProgressText');
+    const progressFill = document.getElementById('progressFill');
+    const overallPercent = document.getElementById('overallPercent');
+    const countComplete = document.getElementById('countComplete');
+    const countInProgress = document.getElementById('countInProgress');
+    const countIncomplete = document.getElementById('countIncomplete');
+    const statsGrid = document.getElementById('statsGrid');
+    const lastSavedText = document.getElementById('lastSavedText');
+
+    let currentTopicId = null;
+    let activeTab = 'coding'; // default tab when opening topic
+
+    function topicAnsweredCount(topicId){
+      const s = state.topics[topicId];
+      const codingAnswered = s.codingAnswers.filter(x=>x && x.trim().length>0).length;
+      const mcqAnswered = s.mcqAnswers.filter(v=>v !== null).length;
+      return codingAnswered + mcqAnswered;
+    }
+    function topicTotalCount(topicId){
+      const t = TOPICS.find(x=>x.id===topicId);
+      return (t ? t.coding.length + t.qs.length : 0);
+    }
+    function topicStatus(topicId){
+      const total = topicTotalCount(topicId);
+      const answered = topicAnsweredCount(topicId);
+      if(answered === 0) return 'incomplete';
+      if(answered < total) return 'progress';
+      return 'complete';
+    }
+
+    function renderTopics(){
+      topicsList.innerHTML = '';
+      TOPICS.forEach(topic=>{
+        const st = topicStatus(topic.id);
+        const answered = topicAnsweredCount(topic.id);
+        const total = topicTotalCount(topic.id);
+        const div = document.createElement('div');
+        div.className = 'topic-card';
+        div.tabIndex = 0;
+        div.innerHTML = `
+          <div class="topic-left">
+            <div class="topic-num">${topic.id}</div>
+            <div>
+              <div class="topic-title">${topic.title}</div>
+              <div class="small muted">${answered}/${total} answered</div>
+            </div>
+          </div>
+          <div>
+            <div class="status-badge ${st==='complete'?'status-complete':st==='progress'?'status-progress':'status-incomplete'}">
+              ${st==='complete'?'Complete':st==='progress'?'In Progress':'Incomplete'}
+            </div>
+          </div>
+        `;
+        div.addEventListener('click',()=> openTopic(topic.id));
+        topicsList.appendChild(div);
+      });
+      renderStatsGrid();
+    }
+
+    function updateOverallProgress(){
+      const totalTopics = TOPICS.length;
+      let complete=0, progress=0, incomplete=0;
+      TOPICS.forEach(t=>{
+        const s = topicStatus(t.id);
+        if(s==='complete') complete++;
+        else if(s==='progress') progress++;
+        else incomplete++;
+      });
+      countComplete.textContent = `Complete: ${complete}`;
+      countInProgress.textContent = `In Progress: ${progress}`;
+      countIncomplete.textContent = `Incomplete: ${incomplete}`;
+      const pct = Math.round((complete/totalTopics)*100);
+      progressFill.style.width = pct + '%';
+      overallPercent.textContent = pct + '%';
+    }
+
+    function openTopic(id){
+      const topic = TOPICS.find(t=>t.id===id);
+      if(!topic) return;
+      currentTopicId = id;
+      activeTab = 'coding'; // default to coding view when opening
+      mainTitle.textContent = topic.title;
+      selectedName.textContent = topic.title;
+      quizCard.style.display = 'block';
+      renderTopicPanel(topic);
+    }
+
+    function renderTopicPanel(topic){
+      // update tab buttons
+      document.getElementById('tabCoding').className = activeTab==='coding' ? 'tab active' : 'tab inactive';
+      document.getElementById('tabMCQ').className = activeTab==='mcq' ? 'tab active' : 'tab inactive';
+
+      // last saved
+      const savedAt = state.topics[topic.id].savedAt || 0;
+      lastSavedText.textContent = 'Last saved: ' + (savedAt ? new Date(savedAt).toLocaleString() : '—');
+
+      topicPanel.innerHTML = '';
+
+      // show coding questions if active, else MCQ
+      if(activeTab === 'coding'){
+        topic.coding.forEach((prompt, idx)=>{
+          const block = document.createElement('div');
+          block.className = 'qblock';
+          const userCode = state.topics[topic.id].codingAnswers[idx] || '';
+          block.innerHTML = `
+            <div class="q-text">C${idx+1}. ${prompt}</div>
+            <div class="small muted">Write your solution below (auto-saves).</div>
+            <div class="code-area">
+              <textarea class="code" id="code_${idx}" placeholder="// write code or explanation...">${escapeHtml(userCode)}</textarea>
+              <div class="code-actions">
+                <div class="small">${userCode && userCode.trim().length>0 ? 'Saved' : 'Not answered'}</div>
+                <div style="flex:1"></div>
+                <button class="ghost" data-clear="${idx}">Clear</button>
+              </div>
+            </div>
+          `;
+          topicPanel.appendChild(block);
+        });
+
+        // attach listeners for textareas + clear
+        topic.coding.forEach((_, idx)=>{
+          const ta = document.getElementById(`code_${idx}`);
+          ta.addEventListener('input', (e)=>{
+            state.topics[topic.id].codingAnswers[idx] = e.target.value;
+            state.topics[topic.id].savedAt = Date.now();
+            saveState(state);
+            // update progress UI
+            renderTopics();
+            updateOverallProgress();
+            renderTopicPanel(topic); // re-render to update status text (simpler approach)
+          });
+          const clearBtn = topicPanel.querySelector(`button[data-clear="${idx}"]`);
+          clearBtn.addEventListener('click', ()=>{
+            if(!confirm('Clear this coding answer?')) return;
+            state.topics[topic.id].codingAnswers[idx] = "";
+            state.topics[topic.id].savedAt = Date.now();
+            saveState(state);
+            renderTopics();
+            updateOverallProgress();
+            renderTopicPanel(topic);
+          });
+        });
+
+      } else {
+        // MCQ view
+        topic.qs.forEach((qq, idx)=>{
+          const block = document.createElement('div');
+          block.className = 'qblock';
+          const userAns = state.topics[topic.id].mcqAnswers[idx];
+          block.innerHTML = `
+            <div class="q-text">Q${idx+1}. ${qq.q}</div>
+            <div class="options" id="opts-${idx}"></div>
+          `;
+          topicPanel.appendChild(block);
+          const optsDiv = block.querySelector(`#opts-${idx}`);
+          qq.opts.forEach((opt, oi)=>{
+            const o = document.createElement('label');
+            o.className = 'option' + (userAns === oi ? ' selected' : '');
+            o.innerHTML = `<input type="radio" name="q${idx}" value="${oi}" ${userAns===oi?'checked':''} /> <span>${opt}</span>`;
+            o.addEventListener('click',()=>{
+              state.topics[topic.id].mcqAnswers[idx] = oi;
+              state.topics[topic.id].savedAt = Date.now();
+              saveState(state);
+              renderTopics();
+              updateOverallProgress();
+              renderTopicPanel(topic); // re-render to reflect selection
+            });
+            optsDiv.appendChild(o);
+          });
+        });
+      }
+
+      // update progress numbers
+      const answered = topicAnsweredCount(topic.id);
+      const total = topicTotalCount(topic.id);
+      topicProgressText.textContent = `Answered ${answered} / ${total}`;
+      // update last saved text
+      lastSavedText.textContent = 'Last saved: ' + (state.topics[topic.id].savedAt ? new Date(state.topics[topic.id].savedAt).toLocaleString() : '—');
+    }
+
+    // escape HTML for safe textarea insertion
+    function escapeHtml(s){
+      if(!s) return '';
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // tab events
+    document.getElementById('tabCoding').addEventListener('click', ()=>{
+      if(!currentTopicId) return;
+      activeTab = 'coding';
+      renderTopicPanel(TOPICS.find(t=>t.id===currentTopicId));
+    });
+    document.getElementById('tabMCQ').addEventListener('click', ()=>{
+      if(!currentTopicId) return;
+      activeTab = 'mcq';
+      renderTopicPanel(TOPICS.find(t=>t.id===currentTopicId));
+    });
+
+    // show MCQ answers (marks correct/incorrect) — only works in MCQ tab, but will re-render answers visually
+    document.getElementById('showAnswers').addEventListener('click', ()=>{
+      if(!currentTopicId) return;
+      // ensure MCQ tab active
+      activeTab = 'mcq';
+      const topic = TOPICS.find(t=>t.id===currentTopicId);
+      renderTopicPanel(topic);
+      // mark answers (add classes)
+      topic.qs.forEach((qq, idx)=>{
+        const optsDiv = document.getElementById(`opts-${idx}`);
+        if(!optsDiv) return;
+        Array.from(optsDiv.children).forEach((label, li)=>{
+          label.classList.remove('correct','wrong');
+          const userAns = state.topics[currentTopicId].mcqAnswers[idx];
+          if(li === qq.a) label.classList.add('correct');
+          if(userAns !== null && li === userAns && userAns !== qq.a) label.classList.add('wrong');
+        });
+      });
+    });
+
+    // saveProgress button (auto-save already active)
+    document.getElementById('saveProgress').addEventListener('click', ()=>{
+      if(!currentTopicId) return;
+      state.topics[currentTopicId].savedAt = Date.now();
+      saveState(state);
+      renderTopics();
+      updateOverallProgress();
+      alert('Progress saved locally.');
+    });
+
+    // reset all
+    document.getElementById('resetAll').addEventListener('click', ()=>{
+      if(!confirm('Reset all progress? This will clear saved coding answers and MCQ answers.')) return;
+      state = { topics: {} };
+      TOPICS.forEach(t=>{
+        state.topics[t.id] = {
+          codingAnswers: Array(t.coding.length).fill(""),
+          mcqAnswers: Array(t.qs.length).fill(null),
+          savedAt: Date.now()
+        };
+      });
+      saveState(state);
+      currentTopicId = null;
+      mainTitle.textContent = 'Select a topic to start';
+      selectedName.textContent = '—';
+      quizCard.style.display = 'none';
+      renderTopics();
+      updateOverallProgress();
+      alert('All progress cleared.');
+    });
+
+    // export
+    document.getElementById('exportBtn').addEventListener('click', ()=>{
+      const dataStr = JSON.stringify(state, null, 2);
+      const blob = new Blob([dataStr], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'dsaRoadmap_export_coding_mcq.json'; a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // stats grid
+    function renderStatsGrid(){
+      statsGrid.innerHTML = '';
+      TOPICS.forEach(t=>{
+        const status = topicStatus(t.id);
+        const answered = topicAnsweredCount(t.id);
+        const total = topicTotalCount(t.id);
+        const card = document.createElement('div');
+        card.style.background = 'linear-gradient(180deg,#ffffff,#fbfdff)';
+        card.style.padding = '12px';
+        card.style.borderRadius = '10px';
+        card.style.boxShadow = '0 8px 20px rgba(2,6,23,0.03)';
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700;font-size:14px">${t.title}</div>
+            <div style="font-size:12px" class="${status==='complete'?'status-complete':status==='progress'?'status-progress':'status-incomplete'}">${
+              status==='complete'?'Complete':status==='progress'?'In Progress':'Incomplete'
+            }</div>
+          </div>
+          <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+            <div class="small">${answered}/${total} answered</div>
+            <div>
+              <button class="ghost" data-open="${t.id}">Open</button>
+            </div>
+          </div>
+        `;
+        statsGrid.appendChild(card);
+      });
+      Array.from(statsGrid.querySelectorAll('button[data-open]')).forEach(btn=>{
+        btn.addEventListener('click', ()=> {
+          const id = Number(btn.getAttribute('data-open'));
+          openTopic(id);
+          window.scrollTo({top:0,behavior:'smooth'});
+        });
+      });
+    }
+
+    // initial render and restore last active topic (optional: last used)
+    renderTopics();
+    updateOverallProgress();
+    (function restoreLast(){
+      let best = null;
+      TOPICS.forEach(t=>{
+        const s = state.topics[t.id];
+        if(!s) return;
+        if(!best || (s.savedAt || 0) > (best.savedAt || 0)) best = {id:t.id, savedAt:s.savedAt};
+      });
+      if(best && best.id){
+        const ageDays = (Date.now() - (best.savedAt||0)) / (1000*60*60*24);
+        if(ageDays <= 30) openTopic(best.id);
+      }
+    })();
+
+    // keyboard nav for topics
+    topicsList.addEventListener('keydown', (e)=>{
+      if(['ArrowDown','ArrowUp'].includes(e.key)){
+        e.preventDefault();
+        const focusable = Array.from(topicsList.querySelectorAll('.topic-card'));
+        const idx = focusable.indexOf(document.activeElement);
+        let next = 0;
+        if(e.key==='ArrowDown') next = (idx+1) % focusable.length;
+        if(e.key==='ArrowUp') next = (idx-1+focusable.length) % focusable.length;
+        focusable[next].focus();
+      }
+    });
+
+  </script>
+</body>
+</html>
