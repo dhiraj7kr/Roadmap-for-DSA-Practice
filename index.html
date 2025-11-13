@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DSA Roadmap — Coding + MCQ Practice</title>
+  <title>DSA Roadmap — Coding + MCQ Practice (Autosave + Language)</title>
   <style>
     :root{
       --bg:#f6f8fb;
@@ -98,6 +98,7 @@
       background:linear-gradient(180deg,#fff,#fbfdff);
     }
     .code-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+    select.lang{padding:8px;border-radius:8px;border:1px solid #e6eefc;background:white}
 
     /* MCQ */
     .options{display:flex;flex-direction:column;gap:8px}
@@ -125,7 +126,7 @@
         <div class="mark">DSA</div>
         <div>
           <h1>Roadmap for DSA — Practice</h1>
-          <p class="muted">Coding + MCQ — saved locally in your browser.</p>
+          <p class="muted">Coding + MCQ — saved locally in your browser. Autosave while typing (debounced).</p>
         </div>
       </div>
 
@@ -180,15 +181,13 @@
           </div>
         </div>
 
-        <div class="topic-panel" id="topicPanel">
-          <!-- questions go here -->
-        </div>
+        <div class="topic-panel" id="topicPanel"></div>
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
           <div class="small" id="topicInfo">Coding view is default. MCQs available under the MCQ tab.</div>
           <div class="controls">
             <button class="ghost" id="showAnswers">Show Correct MCQ Answers</button>
-            <button class="primary" id="saveProgress">Save (auto)</button>
+            <button class="primary" id="saveProgress">Save (manual)</button>
           </div>
         </div>
       </div>
@@ -202,11 +201,55 @@
   </div>
 
   <script>
-    /* ===== DATA: topics with coding prompts + MCQ =====
-       For brevity I provide short, practical coding prompts for each topic.
-       You can edit prompts to be more specific later.
-    */
+    /* DATA (same as before) - topics with coding prompts + MCQ */
     const TOPICS = [
+      { id:1, title:"Learn a Programming Language",
+        coding:[
+          "Write a Hello World program in your chosen language.",
+          "Read a list of integers from input and print their sum.",
+          "Implement a function that reverses a string.",
+          "Demonstrate reading and writing a file (small example).",
+          "Write a small program that uses functions and prints formatted output."
+        ],
+        qs:[
+          { q:"Which is a compiled language among these?", opts:["Python","C++","JavaScript"], a:1 },
+          { q:"Which uses indentation for block delimiting?", opts:["C","Python","Java"], a:1 },
+          { q:"Which language runs primarily in browsers?", opts:["C#","Go","JavaScript"], a:2 },
+          { q:"Which language is strongly typed at compile time?", opts:["Java","PHP","Bash"], a:0 },
+          { q:"Which one is commonly used for system programming?", opts:["Ruby","C","R"], a:1 }
+        ]
+      },
+      { id:2, title:"Arrays & Strings",
+        coding:[
+          "Given an array, find the maximum subarray sum (Kadane's algorithm).",
+          "Reverse a string in-place (no extra array).",
+          "Remove duplicates from a sorted array in-place.",
+          "Rotate an array by k positions.",
+          "Check if two strings are anagrams of each other."
+        ],
+        qs:[
+          { q:"What is time complexity to access element by index in array?", opts:["O(1)","O(n)","O(log n)"], a:0 },
+          { q:"Which is mutable in many languages?", opts:["String (Java)","Array (JS)","Tuple (Python)"], a:1 },
+          { q:"What operation finds substring occurrence?", opts:["Split","Search/IndexOf","Map"], a:1 },
+          { q:"Reversing a string in-place uses what space (typical)?", opts:["O(1)","O(n)","O(log n)"], a:0 },
+          { q:"Concatenating many strings best uses:", opts:["Repeated +","String builder/Buffer","Using recursion"], a:1 }
+        ]
+      },
+      /* ... keep rest of topics exactly as previous - omitted here for brevity in this comment but included below ... */
+    ];
+
+    /* Full TOPICS array (all 24) - for brevity we will programmatically load the big array.
+       In this emitted code the full TOPICS definition continues (I include every topic exactly as previous message).
+    */
+    // For space, append the rest of the topics programmatically by copying the prior large TOPICS block:
+    // (To ensure correctness, include the long TOPICS array exactly as earlier — below I paste the full array.)
+  </script>
+
+  <script>
+    // --- Paste full TOPICS content here (complete 24 topics). ---
+    // To avoid accidentally truncating, we'll define TOPICS fully now:
+    // (The following block is the full TOPICS array from previous message.)
+    const FULL_TOPICS = [
       { id:1, title:"Learn a Programming Language",
         coding:[
           "Write a Hello World program in your chosen language.",
@@ -593,8 +636,11 @@
       }
     ];
 
+    // use FULL_TOPICS as TOPICS
+    const TOPICS_DATA = FULL_TOPICS;
+
     /* STORAGE */
-    const STORAGE_KEY = 'dsaRoadmap_coding_mcq_v1';
+    const STORAGE_KEY = 'dsaRoadmap_coding_mcq_v2';
 
     function loadState(){
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -605,23 +651,22 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
     }
 
-    /* initialize state: for each topic: codingAnswers: array of strings, mcqAnswers: array of ints/null, savedAt */
     let state = loadState();
+
     function ensureState(){
-      if(!state.topics){
-        state.topics = {};
-      }
-      TOPICS.forEach(t=>{
+      if(!state.topics) state.topics = {};
+      TOPICS_DATA.forEach(t=>{
         if(!state.topics[t.id]){
           state.topics[t.id] = {
             codingAnswers: Array(t.coding.length).fill(""),
+            codingLangs: Array(t.coding.length).fill("python"),
             mcqAnswers: Array(t.qs.length).fill(null),
             savedAt: Date.now()
           };
         } else {
-          // ensure arrays of right size if structure changed
           const s = state.topics[t.id];
           if(!s.codingAnswers || s.codingAnswers.length !== t.coding.length) s.codingAnswers = Array(t.coding.length).fill("");
+          if(!s.codingLangs || s.codingLangs.length !== t.coding.length) s.codingLangs = Array(t.coding.length).fill("python");
           if(!s.mcqAnswers || s.mcqAnswers.length !== t.qs.length) s.mcqAnswers = Array(t.qs.length).fill(null);
           if(!s.savedAt) s.savedAt = Date.now();
         }
@@ -646,7 +691,10 @@
     const lastSavedText = document.getElementById('lastSavedText');
 
     let currentTopicId = null;
-    let activeTab = 'coding'; // default tab when opening topic
+    let activeTab = 'coding';
+
+    // debounce timers for each textarea: map key => timeoutID
+    const debounceMap = {}; // key format: `${topicId}_${idx}`
 
     function topicAnsweredCount(topicId){
       const s = state.topics[topicId];
@@ -655,7 +703,7 @@
       return codingAnswered + mcqAnswered;
     }
     function topicTotalCount(topicId){
-      const t = TOPICS.find(x=>x.id===topicId);
+      const t = TOPICS_DATA.find(x=>x.id===topicId);
       return (t ? t.coding.length + t.qs.length : 0);
     }
     function topicStatus(topicId){
@@ -668,7 +716,7 @@
 
     function renderTopics(){
       topicsList.innerHTML = '';
-      TOPICS.forEach(topic=>{
+      TOPICS_DATA.forEach(topic=>{
         const st = topicStatus(topic.id);
         const answered = topicAnsweredCount(topic.id);
         const total = topicTotalCount(topic.id);
@@ -696,9 +744,9 @@
     }
 
     function updateOverallProgress(){
-      const totalTopics = TOPICS.length;
+      const totalTopics = TOPICS_DATA.length;
       let complete=0, progress=0, incomplete=0;
-      TOPICS.forEach(t=>{
+      TOPICS_DATA.forEach(t=>{
         const s = topicStatus(t.id);
         if(s==='complete') complete++;
         else if(s==='progress') progress++;
@@ -713,74 +761,169 @@
     }
 
     function openTopic(id){
-      const topic = TOPICS.find(t=>t.id===id);
+      const topic = TOPICS_DATA.find(t=>t.id===id);
       if(!topic) return;
       currentTopicId = id;
-      activeTab = 'coding'; // default to coding view when opening
+      activeTab = 'coding';
       mainTitle.textContent = topic.title;
       selectedName.textContent = topic.title;
       quizCard.style.display = 'block';
       renderTopicPanel(topic);
     }
 
+    // helper to format last saved
+    function formatSaved(ts){
+      return ts ? new Date(ts).toLocaleString() : '—';
+    }
+
     function renderTopicPanel(topic){
-      // update tab buttons
+      // update tabs
       document.getElementById('tabCoding').className = activeTab==='coding' ? 'tab active' : 'tab inactive';
       document.getElementById('tabMCQ').className = activeTab==='mcq' ? 'tab active' : 'tab inactive';
 
-      // last saved
+      // update last saved
       const savedAt = state.topics[topic.id].savedAt || 0;
-      lastSavedText.textContent = 'Last saved: ' + (savedAt ? new Date(savedAt).toLocaleString() : '—');
+      lastSavedText.textContent = 'Last saved: ' + formatSaved(savedAt);
 
       topicPanel.innerHTML = '';
 
-      // show coding questions if active, else MCQ
       if(activeTab === 'coding'){
         topic.coding.forEach((prompt, idx)=>{
+          const userCode = state.topics[topic.id].codingAnswers[idx] || '';
+          const userLang = state.topics[topic.id].codingLangs[idx] || 'python';
           const block = document.createElement('div');
           block.className = 'qblock';
-          const userCode = state.topics[topic.id].codingAnswers[idx] || '';
           block.innerHTML = `
-            <div class="q-text">C${idx+1}. ${prompt}</div>
-            <div class="small muted">Write your solution below (auto-saves).</div>
-            <div class="code-area">
-              <textarea class="code" id="code_${idx}" placeholder="// write code or explanation...">${escapeHtml(userCode)}</textarea>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+              <div>
+                <div class="q-text">C${idx+1}. ${prompt}</div>
+                <div class="small muted">Write your solution below. Language: <strong id="langLabel_${idx}">${userLang}</strong></div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <select class="lang" id="lang_${idx}" aria-label="Select language for question ${idx+1}">
+                  <option value="python">Python</option>
+                  <option value="java">Java</option>
+                  <option value="javascript">JavaScript</option>
+                  <option value="c">C</option>
+                  <option value="cpp">C++</option>
+                  <option value="csharp">C#</option>
+                </select>
+              </div>
+            </div>
+            <div class="code-area" style="margin-top:10px">
+              <textarea class="code" id="code_${idx}" placeholder="// write code or explanation..."></textarea>
               <div class="code-actions">
-                <div class="small">${userCode && userCode.trim().length>0 ? 'Saved' : 'Not answered'}</div>
+                <div class="small" id="savedHint_${idx}">${userCode && userCode.trim().length>0 ? 'Saved' : 'Not answered'}</div>
                 <div style="flex:1"></div>
-                <button class="ghost" data-clear="${idx}">Clear</button>
+                <button class="ghost" data-reset="${idx}">Reset</button>
+                <button class="primary" data-save="${idx}">Save</button>
               </div>
             </div>
           `;
           topicPanel.appendChild(block);
-        });
 
-        // attach listeners for textareas + clear
-        topic.coding.forEach((_, idx)=>{
-          const ta = document.getElementById(`code_${idx}`);
+          // set select and textarea values without triggering input handlers
+          const select = block.querySelector(`#lang_${idx}`);
+          select.value = userLang;
+          const langLabel = block.querySelector(`#langLabel_${idx}`);
+          langLabel.textContent = userLang;
+
+          const ta = block.querySelector(`#code_${idx}`);
+          ta.value = state.topics[topic.id].codingAnswers[idx] || '';
+
+          // attach event listeners - language change
+          select.addEventListener('change', (e)=>{
+            state.topics[topic.id].codingLangs[idx] = e.target.value;
+            state.topics[topic.id].savedAt = Date.now();
+            saveState(state);
+            // update label
+            langLabel.textContent = e.target.value;
+            // update last saved and topics summary
+            document.getElementById('lastSavedText').textContent = 'Last saved: ' + formatSaved(state.topics[topic.id].savedAt);
+            renderTopics();
+            updateOverallProgress();
+          });
+
+          // input handler with debounce (no full re-render)
           ta.addEventListener('input', (e)=>{
+            const key = `${topic.id}_${idx}`;
+            // update live in state (but consider it unsaved until debounce triggers)
+            state.topics[topic.id].codingAnswers[idx] = e.target.value;
+            // update savedHint to "Typing..."
+            const hint = document.getElementById(`savedHint_${idx}`);
+            if(hint) hint.textContent = 'Typing...';
+
+            // clear previous timer
+            if(debounceMap[key]) clearTimeout(debounceMap[key]);
+            // set new debounce to auto-save after 1.5s idle
+            debounceMap[key] = setTimeout(()=>{
+              state.topics[topic.id].savedAt = Date.now();
+              saveState(state);
+              const hint2 = document.getElementById(`savedHint_${idx}`);
+              if(hint2) hint2.textContent = state.topics[topic.id].codingAnswers[idx].trim().length>0 ? 'Saved' : 'Not answered';
+              document.getElementById('lastSavedText').textContent = 'Last saved: ' + formatSaved(state.topics[topic.id].savedAt);
+              renderTopics();
+              updateOverallProgress();
+              delete debounceMap[key];
+            }, 1500);
+            // also update the small counts without full re-render
+            updateProgressText(topic.id);
+          });
+
+          // blur: immediate save
+          ta.addEventListener('blur', (e)=>{
+            const key = `${topic.id}_${idx}`;
+            if(debounceMap[key]) { clearTimeout(debounceMap[key]); delete debounceMap[key]; }
             state.topics[topic.id].codingAnswers[idx] = e.target.value;
             state.topics[topic.id].savedAt = Date.now();
             saveState(state);
-            // update progress UI
+            const hint2 = document.getElementById(`savedHint_${idx}`);
+            if(hint2) hint2.textContent = state.topics[topic.id].codingAnswers[idx].trim().length>0 ? 'Saved' : 'Not answered';
+            document.getElementById('lastSavedText').textContent = 'Last saved: ' + formatSaved(state.topics[topic.id].savedAt);
             renderTopics();
             updateOverallProgress();
-            renderTopicPanel(topic); // re-render to update status text (simpler approach)
           });
-          const clearBtn = topicPanel.querySelector(`button[data-clear="${idx}"]`);
-          clearBtn.addEventListener('click', ()=>{
-            if(!confirm('Clear this coding answer?')) return;
-            state.topics[topic.id].codingAnswers[idx] = "";
+
+          // Save button - immediate save
+          const saveBtn = block.querySelector(`button[data-save="${idx}"]`);
+          saveBtn.addEventListener('click', ()=>{
+            // cancel pending debounce to avoid double-saves
+            const key = `${topic.id}_${idx}`;
+            if(debounceMap[key]) { clearTimeout(debounceMap[key]); delete debounceMap[key]; }
+            state.topics[topic.id].codingAnswers[idx] = ta.value;
             state.topics[topic.id].savedAt = Date.now();
             saveState(state);
+            const hint2 = document.getElementById(`savedHint_${idx}`);
+            if(hint2) hint2.textContent = state.topics[topic.id].codingAnswers[idx].trim().length>0 ? 'Saved' : 'Not answered';
+            document.getElementById('lastSavedText').textContent = 'Last saved: ' + formatSaved(state.topics[topic.id].savedAt);
             renderTopics();
             updateOverallProgress();
-            renderTopicPanel(topic);
+            // give subtle UI feedback
+            saveBtn.textContent = 'Saved';
+            setTimeout(()=> saveBtn.textContent = 'Save', 900);
           });
-        });
 
+          // Reset/Clear button - clears the box
+          const resetBtn = block.querySelector(`button[data-reset="${idx}"]`);
+          resetBtn.addEventListener('click', ()=>{
+            if(!confirm('Clear this coding answer?')) return;
+            // cancel debounce
+            const key = `${topic.id}_${idx}`;
+            if(debounceMap[key]) { clearTimeout(debounceMap[key]); delete debounceMap[key]; }
+            ta.value = '';
+            state.topics[topic.id].codingAnswers[idx] = '';
+            state.topics[topic.id].savedAt = Date.now();
+            saveState(state);
+            const hint2 = document.getElementById(`savedHint_${idx}`);
+            if(hint2) hint2.textContent = 'Not answered';
+            document.getElementById('lastSavedText').textContent = 'Last saved: ' + formatSaved(state.topics[topic.id].savedAt);
+            renderTopics();
+            updateOverallProgress();
+          });
+
+        });
       } else {
-        // MCQ view
+        // MCQ panel
         topic.qs.forEach((qq, idx)=>{
           const block = document.createElement('div');
           block.className = 'qblock';
@@ -801,47 +944,45 @@
               saveState(state);
               renderTopics();
               updateOverallProgress();
-              renderTopicPanel(topic); // re-render to reflect selection
+              // update answered count and last saved text without full re-render
+              updateProgressText(topic.id);
+              lastSavedText.textContent = 'Last saved: ' + formatSaved(state.topics[topic.id].savedAt);
+              renderTopicPanel(topic); // small re-render to reflect selection
             });
             optsDiv.appendChild(o);
           });
         });
       }
 
-      // update progress numbers
-      const answered = topicAnsweredCount(topic.id);
-      const total = topicTotalCount(topic.id);
-      topicProgressText.textContent = `Answered ${answered} / ${total}`;
-      // update last saved text
-      lastSavedText.textContent = 'Last saved: ' + (state.topics[topic.id].savedAt ? new Date(state.topics[topic.id].savedAt).toLocaleString() : '—');
+      updateProgressText(topic.id);
     }
 
-    // escape HTML for safe textarea insertion
-    function escapeHtml(s){
-      if(!s) return '';
-      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    // update only the progress small text
+    function updateProgressText(topicId){
+      const answered = topicAnsweredCount(topicId);
+      const total = topicTotalCount(topicId);
+      const el = document.getElementById('topicProgressText');
+      if(el) el.textContent = `Answered ${answered} / ${total}`;
     }
 
-    // tab events
+    // tab handlers
     document.getElementById('tabCoding').addEventListener('click', ()=>{
       if(!currentTopicId) return;
       activeTab = 'coding';
-      renderTopicPanel(TOPICS.find(t=>t.id===currentTopicId));
+      renderTopicPanel(TOPICS_DATA.find(t=>t.id===currentTopicId));
     });
     document.getElementById('tabMCQ').addEventListener('click', ()=>{
       if(!currentTopicId) return;
       activeTab = 'mcq';
-      renderTopicPanel(TOPICS.find(t=>t.id===currentTopicId));
+      renderTopicPanel(TOPICS_DATA.find(t=>t.id===currentTopicId));
     });
 
-    // show MCQ answers (marks correct/incorrect) — only works in MCQ tab, but will re-render answers visually
+    // show MCQ answers
     document.getElementById('showAnswers').addEventListener('click', ()=>{
       if(!currentTopicId) return;
-      // ensure MCQ tab active
       activeTab = 'mcq';
-      const topic = TOPICS.find(t=>t.id===currentTopicId);
+      const topic = TOPICS_DATA.find(t=>t.id===currentTopicId);
       renderTopicPanel(topic);
-      // mark answers (add classes)
       topic.qs.forEach((qq, idx)=>{
         const optsDiv = document.getElementById(`opts-${idx}`);
         if(!optsDiv) return;
@@ -854,7 +995,7 @@
       });
     });
 
-    // saveProgress button (auto-save already active)
+    // manual save progress for current topic
     document.getElementById('saveProgress').addEventListener('click', ()=>{
       if(!currentTopicId) return;
       state.topics[currentTopicId].savedAt = Date.now();
@@ -868,9 +1009,10 @@
     document.getElementById('resetAll').addEventListener('click', ()=>{
       if(!confirm('Reset all progress? This will clear saved coding answers and MCQ answers.')) return;
       state = { topics: {} };
-      TOPICS.forEach(t=>{
+      TOPICS_DATA.forEach(t=>{
         state.topics[t.id] = {
           codingAnswers: Array(t.coding.length).fill(""),
+          codingLangs: Array(t.coding.length).fill("python"),
           mcqAnswers: Array(t.qs.length).fill(null),
           savedAt: Date.now()
         };
@@ -891,14 +1033,14 @@
       const blob = new Blob([dataStr], {type: 'application/json'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'dsaRoadmap_export_coding_mcq.json'; a.click();
+      a.href = url; a.download = 'dsaRoadmap_export_coding_mcq_v2.json'; a.click();
       URL.revokeObjectURL(url);
     });
 
     // stats grid
     function renderStatsGrid(){
       statsGrid.innerHTML = '';
-      TOPICS.forEach(t=>{
+      TOPICS_DATA.forEach(t=>{
         const status = topicStatus(t.id);
         const answered = topicAnsweredCount(t.id);
         const total = topicTotalCount(t.id);
@@ -932,12 +1074,12 @@
       });
     }
 
-    // initial render and restore last active topic (optional: last used)
+    // initial render & restore last used topic
     renderTopics();
     updateOverallProgress();
     (function restoreLast(){
       let best = null;
-      TOPICS.forEach(t=>{
+      TOPICS_DATA.forEach(t=>{
         const s = state.topics[t.id];
         if(!s) return;
         if(!best || (s.savedAt || 0) > (best.savedAt || 0)) best = {id:t.id, savedAt:s.savedAt};
