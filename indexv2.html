@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DSA Roadmap — Coding Practice (Compile & Run)</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --primary:#0b63d6;
+      --muted:#6b7280;
+      --success:#16a34a;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      --radius:14px;
+      --shadow: 0 8px 24px rgba(15,23,42,0.06);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      background: linear-gradient(180deg,#eef6ff 0%, #f6f8fb 100%);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:22px;
+    }
+
+    .app{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:20px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    @media (max-width:900px){
+      .app{grid-template-columns:1fr; padding-bottom:40px}
+    }
+
+    .sidebar{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .logo{display:flex;gap:12px;align-items:center}
+    .mark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--primary),#3b82f6);color:white;display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{font-size:16px;margin:0}
+    p.muted{margin:0;color:var(--muted);font-size:13px}
+
+    .progress-wrap{margin-top:12px}
+    .progress-bar{height:12px;width:100%;background:#eef2ff;border-radius:999px;overflow:hidden}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),#06b6d4);width:0%;transition:width .4s ease}
+    .stats{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:8px}
+
+    .topics{margin-top:10px;display:grid;gap:8px;max-height:58vh;overflow:auto;padding-right:6px}
+    .topic-card{display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.9));border-radius:10px;padding:10px 12px;cursor:pointer;transition:transform .12s ease}
+    .topic-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(2,6,23,0.06)}
+    .topic-left{display:flex;gap:10px;align-items:center}
+    .topic-num{width:36px;height:36px;border-radius:9px;background:rgba(11,99,214,0.06);display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700}
+    .topic-title{font-size:14px;margin:0;color:#081026}
+    .status-badge{font-size:12px;padding:6px 8px;border-radius:999px}
+    .status-incomplete{background:#f8fafc;color:var(--muted);border:1px solid #eef2ff}
+    .status-progress{background:linear-gradient(90deg,#fff7ed,#ffedd5); color:var(--warning); border:1px solid #ffedd5}
+    .status-complete{background:linear-gradient(90deg,#ecfdf5,#f0fdf4); color:var(--success); border:1px solid #bbf7d0}
+
+    .main{display:flex;flex-direction:column;gap:18px}
+    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+    .card h2{margin:0 0 6px 0;font-size:18px}
+    .card p.muted{margin:0 0 12px 0}
+
+    .topic-panel{display:flex;flex-direction:column;gap:12px}
+    .tabbar{display:flex;gap:8px;align-items:center}
+    .tab{padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600}
+    .tab.active{background:linear-gradient(90deg,var(--primary),#06b6d4);color:white;box-shadow:0 8px 20px rgba(11,99,214,0.12)}
+    .tab.inactive{background:transparent;border:1px solid #eef3ff;color:var(--muted)}
+
+    .qblock{background:#fbfdff;border-radius:10px;padding:12px;border:1px solid #eef3ff}
+    .q-text{font-weight:700;margin:0 0 8px 0}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* coding area */
+    .code-area{display:flex;flex-direction:column;gap:8px}
+    textarea.code{
+      min-height:140px;
+      width:100%;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #e6eefc;
+      resize:vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      font-size:13px;
+      background:linear-gradient(180deg,#fff,#fbfdff);
+    }
+    .code-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+    select.lang{padding:8px;border-radius:8px;border:1px solid #e6eefc;background:white}
+
+    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    button.primary{background:linear-gradient(90deg,var(--primary),#06b6d4);color:white;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;box-shadow: 0 8px 20px rgba(11,99,214,0.12)}
+    button.ghost{background:transparent;border:1px solid #e6eefc;padding:9px 12px;border-radius:10px;cursor:pointer}
+
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+
+    .output{
+      background:#0b1220;color:#e6f0ff;border-radius:8px;padding:10px;font-family:ui-monospace,monospace;font-size:13px;min-height:80px;white-space:pre-wrap;
+      overflow:auto;border:1px solid rgba(255,255,255,0.02);
+    }
+
+    .row{display:flex;gap:8px;align-items:center}
+    .disabled{opacity:0.45;pointer-events:none}
+
+    @media (max-width:420px){
+      .topic-num{width:34px;height:34px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar card" aria-label="Roadmap navigation">
+      <div class="logo">
+        <div class="mark">DSA</div>
+        <div>
+          <h1>Roadmap for DSA — Coding Practice</h1>
+          <p class="muted">Coding editor + run (JS & Python in-browser). For other languages see server compile hook.</p>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="small">Overall Progress</div>
+          <div id="overallPercent" class="small">0%</div>
+        </div>
+        <div class="progress-bar" aria-hidden="true">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <div class="stats">
+          <div id="countComplete">Complete: 0</div>
+          <div id="countInProgress">In Progress: 0</div>
+          <div id="countIncomplete">Incomplete: 0</div>
+        </div>
+      </div>
+
+      <div class="topics" id="topicsList" role="list" aria-label="Topics"></div>
+
+      <div style="margin-top:12px; display:flex;gap:8px;">
+        <button class="primary" id="resetAll">Reset All</button>
+        <button class="ghost" id="exportBtn">Export</button>
+      </div>
+
+      <div class="small" style="margin-top:10px;color:var(--muted)">No account required — progress stored locally.</div>
+    </aside>
+
+    <main class="main">
+      <div class="card" id="mainCard">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <div>
+            <h2 id="mainTitle">Select a topic to start</h2>
+            <p class="muted" id="mainSubtitle">Each topic has coding prompts. Run is available for JS and Python client-side. First 3 topics have Run enabled for multiple languages (client or server).</p>
+          </div>
+          <div style="text-align:right">
+            <div class="small">Selected Topic</div>
+            <div id="selectedName" style="font-weight:700">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="quizCard" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="tabbar" role="tablist">
+            <div class="tab active" role="tab" tabindex="0">Coding Questions</div>
+          </div>
+          <div style="text-align:right">
+            <div class="small" id="topicProgressText">Answered 0 / 5</div>
+            <div class="small" id="lastSavedText">Last saved: —</div>
+          </div>
+        </div>
+
+        <div class="topic-panel" id="topicPanel"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+          <div class="small" id="topicInfo">Run supports JS (client) & Python (Pyodide). Use server API for C/C++/Java (see comments).</div>
+          <div class="controls">
+            <button class="primary" id="saveProgress">Save (manual)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="statsCard">
+        <h2>Quick Stats</h2>
+        <p class="muted">Per-topic quick actions and progress overview</p>
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Load Pyodide for Python execution -->
+  <script>
+    // It's okay to load pyodide from CDN. We'll lazy-load when needed.
+    let pyodideReady = false;
+    let pyodide = null;
+    async function loadPyodideIfNeeded() {
+      if(pyodideReady) return pyodide;
+      // show small loader
+      try{
+        // Use official pyodide CDN (version may be updated later)
+        const script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js";
+        document.head.appendChild(script);
+        await new Promise((res, rej) => {
+          script.onload = res;
+          script.onerror = () => rej(new Error('Failed to load pyodide.'));
+        });
+        pyodide = await loadPyodide({indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/"});
+        pyodideReady = true;
+        return pyodide;
+      } catch (err) {
+        console.error('Pyodide load failed', err);
+        throw err;
+      }
+    }
+  </script>
+
+  <script>
+    /* TOPICS (coding only) */
+    const TOPICS_DATA = [
+      { id:1, title:"Learn a Programming Language",
+        coding:[
+          "Write a Hello World program in your chosen language.",
+          "Read a list of integers from input and print their sum.",
+          "Implement a function that reverses a string.",
+          "Demonstrate reading and writing a file (small example).",
+          "Write a small program that uses functions and prints formatted output."
+        ]
+      },
+      { id:2, title:"Arrays & Strings",
+        coding:[
+          "Given an array, find the maximum subarray sum (Kadane's algorithm).",
+          "Reverse a string in-place (no extra array).",
+          "Remove duplicates from a sorted array in-place.",
+          "Rotate an array by k positions.",
+          "Check if two strings are anagrams of each other."
+        ]
+      },
+      { id:3, title:"Linked List",
+        coding:[
+          "Implement a singly linked list with insertAtHead, insertAtTail, and printList.",
+          "Reverse a singly linked list (iterative).",
+          "Detect cycle in a linked list using Floyd's algorithm.",
+          "Merge two sorted linked lists into one sorted list.",
+          "Delete the nth node from the end of a singly linked list."
+        ]
+      },
+      // The rest of topics are kept but run disabled by default
+      { id:4, title:"Stack & Queue", coding:[ "Implement stack...", "Use queue for BFS...", "Implement queue with two stacks","Check balanced parentheses","Circular queue"] },
+      { id:5, title:"Hashing & Heap", coding:[ "Frequency map","k largest using heap","LRU cache","Collision handling","merge k arrays"] },
+      { id:6, title:"Recursion & Backtracking", coding:[ "factorial/fib","subset sum","N-Queens","permutations","combination sum"] },
+      { id:7, title:"Searching & Sorting", coding:[ "binary search","merge sort","quicksort","merge two sorted","count inversions"] },
+      { id:8, title:"Mathematical Algorithms", coding:[ "gcd","powmod","sieve","modinv","nCr"] },
+      { id:9, title:"Bitwise Operations & Tricks", coding:[ "swap xor","power of two","count bits","toggle bit","x & -x"] },
+      { id:10, title:"Greedy Algorithms", coding:[ "activity selection","fractional knapsack","coin change","Huffman","interval scheduling"] },
+      { id:11, title:"Dynamic Programming", coding:[ "fib memo/tab","0/1 knapsack","LCS","coin change ways","LIS"] },
+      { id:12, title:"Advanced DP Techniques", coding:[ "bitmask DP","divide & conquer opt","digit DP","convex hull trick","tree DP"] },
+      { id:13, title:"Graph Algorithms", coding:[ "BFS","DFS cycle","Dijkstra","Bellman-Ford","adj list traversal"] },
+      { id:14, title:"Advanced Graph Algorithms", coding:[ "Tarjan SCC","Kosaraju","articulation points","bridges","binary lifting"] },
+      { id:15, title:"DSU & MST", coding:[ "DSU","Kruskal","Prim","connected components","DSU sizes"] },
+      { id:16, title:"Network Flow Algorithms", coding:[ "Ford-Fulkerson","Edmonds-Karp","residual graph","bipartite matching","min-cut"] },
+      { id:17, title:"String Algorithms", coding:[ "KMP","trie","Z-array","suffix array","Rabin-Karp"] },
+      { id:18, title:"Computational Geometry", coding:[ "convex hull","orientation","closest pair","point-in-polygon","shoelace"] },
+      { id:19, title:"Segment Trees & Fenwick Tree", coding:[ "fenwick","segment tree","lazy propagation","inversions","persistent segtree"] },
+      { id:20, title:"Sparse Table & Binary Lifting", coding:[ "sparse table","binary lifting","idempotent queries","precompute jumps","tradeoffs"] },
+      { id:21, title:"Advanced Tree Techniques", coding:[ "euler tour","HLD","centroid","link-cut","tree dp"] },
+      { id:22, title:"Tries & Suffix Trees", coding:[ "trie","suffix array","ukkonen","compressed trie","suffix array+lcp"] },
+      { id:23, title:"Game Theory & Nim Game", coding:[ "nim xor","grundy numbers","take-away","sprague-grundy","cli nim"] },
+      { id:24, title:"Approximation & Randomized Algorithms", coding:[ "randomized quickselect","monte carlo pi","randomized hashing","approx knapsack","reservoir sampling"] }
+    ];
+
+    /* STORAGE */
+    const STORAGE_KEY = 'dsaRoadmap_coding_only_v3';
+    function loadState(){ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return {}; try{ return JSON.parse(raw);}catch(e){return {};}}
+    function saveState(st){ localStorage.setItem(STORAGE_KEY, JSON.stringify(st)); }
+    let state = loadState();
+
+    function ensureState(){
+      if(!state.topics) state.topics = {};
+      TOPICS_DATA.forEach(t=>{
+        if(!state.topics[t.id]) {
+          state.topics[t.id] = {
+            codingAnswers: Array(t.coding.length).fill(""),
+            codingLangs: Array(t.coding.length).fill("python"),
+            savedAt: Date.now()
+          };
+        } else {
+          const s = state.topics[t.id];
+          if(!s.codingAnswers || s.codingAnswers.length !== t.coding.length) s.codingAnswers = Array(t.coding.length).fill("");
+          if(!s.codingLangs || s.codingLangs.length !== t.coding.length) s.codingLangs = Array(t.coding.length).fill("python");
+          if(!s.savedAt) s.savedAt = Date.now();
+        }
+      });
+      saveState(state);
+    }
+    ensureState();
+
+    /* UI refs */
+    const topicsList = document.getElementById('topicsList');
+    const mainTitle = document.getElementById('mainTitle');
+    const selectedName = document.getElementById('selectedName');
+    const quizCard = document.getElementById('quizCard');
+    const topicPanel = document.getElementById('topicPanel');
+    const topicProgressText = document.getElementById('topicProgressText');
+    const progressFill = document.getElementById('progressFill');
+    const overallPercent = document.getElementById('overallPercent');
+    const countComplete = document.getElementById('countComplete');
+    const countInProgress = document.getElementById('countInProgress');
+    const countIncomplete = document.getElementById('countIncomplete');
+    const statsGrid = document.getElementById('statsGrid');
+    const lastSavedText = document.getElementById('lastSavedText');
+
+    let currentTopicId = null;
+    const debounceMap = {};
+
+    function topicAnsweredCount(topicId){
+      const s = state.topics[topicId];
+      const codingAnswered = s.codingAnswers.filter(x=>x && x.trim().length>0).length;
+      return codingAnswered;
+    }
+    function topicTotalCount(topicId){
+      const t = TOPICS_DATA.find(x=>x.id===topicId);
+      return (t ? t.coding.length : 0);
+    }
+    function topicStatus(topicId){
+      const total = topicTotalCount(topicId);
+      const answered = topicAnsweredCount(topicId);
+      if(answered === 0) return 'incomplete';
+      if(answered < total) return 'progress';
+      return 'complete';
+    }
+
+    function renderTopics(){
+      topicsList.innerHTML = '';
+      TOPICS_DATA.forEach(topic=>{
+        const st = topicStatus(topic.id);
+        const answered = topicAnsweredCount(topic.id);
+        const total = topicTotalCount(topic.id);
+        const div = document.createElement('div');
+        div.className = 'topic-card';
+        div.tabIndex = 0;
+        div.innerHTML = `
+          <div class="topic-left">
+            <div class="topic-num">${topic.id}</div>
+            <div>
+              <div class="topic-title">${topic.title}</div>
+              <div class="small muted">${answered}/${total} answered</div>
+            </div>
+          </div>
+          <div>
+            <div class="status-badge ${st==='complete'?'status-complete':st==='progress'?'status-progress':'status-incomplete'}">
+              ${st==='complete'?'Complete':st==='progress'?'In Progress':'Incomplete'}
+            </div>
+          </div>
+        `;
+        div.addEventListener('click',()=> openTopic(topic.id));
+        topicsList.appendChild(div);
+      });
+      renderStatsGrid();
+    }
+
+    function updateOverallProgress(){
+      const totalTopics = TOPICS_DATA.length;
+      let complete=0, progress=0, incomplete=0;
+      TOPICS_DATA.forEach(t=>{
+        const s = topicStatus(t.id);
+        if(s==='complete') complete++;
+        else if(s==='progress') progress++;
+        else incomplete++;
+      });
+      countComplete.textContent = `Complete: ${complete}`;
+      countInProgress.textContent = `In Progress: ${progress}`;
+      countIncomplete.textContent = `Incomplete: ${incomplete}`;
+      const pct = Math.round((complete/totalTopics)*100);
+      progressFill.style.width = pct + '%';
+      overallPercent.textContent = pct + '%';
+    }
+
+    function openTopic(id){
+      const topic = TOPICS_DATA.find(t=>t.id===id);
+      if(!topic) return;
+      currentTopicId = id;
+      mainTitle.textContent = topic.title;
+      selectedName.textContent = topic.title;
+      quizCard.style.display = 'block';
+      renderTopicPanel(topic);
+    }
+
+    function formatSaved(ts){
+      return ts ? new Date(ts).toLocaleString() : '—';
+    }
+
+    function renderTopicPanel(topic){
+      const savedAt = state.topics[topic.id].savedAt || 0;
+      lastSavedText.textContent = 'Last saved: ' + formatSaved(savedAt);
+      topicPanel.innerHTML = '';
+
+      topic.coding.forEach((prompt, idx)=>{
+        const userCode = state.topics[topic.id].codingAnswers[idx] || '';
+        const userLang = state.topics[topic.id].codingLangs[idx] || 'python';
+
+        const block = document.createElement('div');
+        block.className = 'qblock';
+        block.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+            <div>
+              <div class="q-text">C${idx+1}. ${prompt}</div>
+              <div class="small muted">Language: <strong id="langLabel_${idx}">${userLang}</strong></div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select class="lang" id="lang_${idx}" aria-label="Select language for question ${idx+1}">
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+                <option value="c">C</option>
+                <option value="cpp">C++</option>
+                <option value="csharp">C#</option>
+              </select>
+            </div>
+          </div>
+          <div class="code-area" style="margin-top:10px">
+            <textarea class="code" id="code_${idx}" placeholder="// write code or explanation...">${escapeHtml(userCode)}</textarea>
+            <div class="code-actions">
+              <div class="small" id="savedHint_${idx}">${userCode && userCode.trim().length>0 ? 'Saved' : 'Not answered'}</div>
+              <div style="flex:1"></div>
+              <button class="ghost" data-reset="${idx}">Reset</button>
+              <button class="primary" data-run="${idx}">Run</button>
+            </div>
+            <div style="margin-top:8px">
+              <label class="small">Std input (optional):</label>
+              <textarea id="stdin_${idx}" style="width:100%;min-height:60px;padding:8px;border-radius:6px;border:1px solid #e6eefc;font-family:ui-monospace,monospace"></textarea>
+            </div>
+            <div style="margin-top:8px">
+              <div class="small muted">Output:</div>
+              <div id="output_${idx}" class="output">—</div>
+            </div>
+          </div>
+        `;
+        topicPanel.appendChild(block);
+
+        const select = block.querySelector(`#lang_${idx}`);
+        select.value = userLang;
+        const langLabel = block.querySelector(`#langLabel_${idx}`);
+        langLabel.textContent = userLang;
+
+        const ta = block.querySelector(`#code_${idx}`);
+        const stdinTa = block.querySelector(`#stdin_${idx}`);
+        const outEl = block.querySelector(`#output_${idx}`);
+
+        // language change
+        select.addEventListener('change', (e)=>{
+          state.topics[topic.id].codingLangs[idx] = e.target.value;
+          state.topics[topic.id].savedAt = Date.now();
+          saveState(state);
+          langLabel.textContent = e.target.value;
+          document.getElementById('lastSavedText').textContent = 'Last saved: ' + formatSaved(state.topics[topic.id].savedAt);
+          renderTopics();
+          updateOverallProgress();
+        });
+
+        // input handler with debounce autosave
+        ta.addEventListener('input', (e)=>{
+          const key = `${topic.id}_${idx}`;
+          state.topics[topic.id].codingAnswers[idx] = e.target.value;
+          const hint = document.getElementById(`savedHint_${idx}`);
+          if(hint) hint.textContent = 'Typing...';
+          if(debounceMap[key]) clearTimeout(debounceMap[key]);
+          debounceMap[key] = setTimeout(()=>{
+            state.topics[topic.id].savedAt = Date.now();
+            saveState(state);
+            const hint2 = document.getElementById(`savedHint_${idx}`);
+            if(hint2) hint2.textContent = state.topics[topic.id].codingAnswers[idx].trim().length>0 ? 'Saved' : 'Not answered';
+            document.getElementById('lastSavedText').textContent = 'Last saved: ' + formatSaved(state.topics[topic.id].savedAt);
+            renderTopics();
+            updateOverallProgress();
+            delete debounceMap[key];
+          }, 1200);
+          updateProgressText(topic.id);
+        });
+
+        ta.addEventListener('blur', (e)=>{
+          const key = `${topic.id}_${idx}`;
+          if(debounceMap[key]) { clearTimeout(debounceMap[key]); delete debounceMap[key]; }
+          state.topics[topic.id].codingAnswers[idx] = e.target.value;
+          state.topics[topic.id].savedAt = Date.now();
+          saveState(state);
+          const hint2 = document.getElementById(`savedHint_${idx}`);
+          if(hint2) hint2.textContent = state.topics[topic.id].codingAnswers[idx].trim().length>0 ? 'Saved' : 'Not answered';
+          document.getElementById('lastSavedText').textContent = 'Last saved: ' + formatSaved(state.topics[topic.id].savedAt);
+          renderTopics();
+          updateOverallProgress();
+        });
+
+        // Save/Reset buttons
+        const resetBtn = block.querySelector(`button[data-reset="${idx}"]`);
+        resetBtn.addEventListener('click', ()=>{
+          if(!confirm('Clear this coding answer?')) return;
+          const key = `${topic.id}_${idx}`;
+          if(debounceMap[key]) { clearTimeout(debounceMap[key]); delete debounceMap[key]; }
+          ta.value = '';
+          stdinTa.value = '';
+          state.topics[topic.id].codingAnswers[idx] = '';
+          state.topics[topic.id].savedAt = Date.now();
+          saveState(state);
+          const hint2 = document.getElementById(`savedHint_${idx}`);
+          if(hint2) hint2.textContent = 'Not answered';
+          document.getElementById('lastSavedText').textContent = 'Last saved: ' + formatSaved(state.topics[topic.id].savedAt);
+          renderTopics();
+          updateOverallProgress();
+        });
+
+        // Run button - enabled only for first 3 topics for multi-language demo
+        const runBtn = block.querySelector(`button[data-run="${idx}"]`);
+        if(topic.id <= 3) {
+          runBtn.addEventListener('click', async ()=>{
+            outEl.textContent = 'Running...';
+            const code = ta.value;
+            const lang = select.value;
+            const stdin = stdinTa.value || '';
+            try{
+              if(lang === 'javascript'){
+                const result = await runJSInIframe(code, stdin);
+                outEl.textContent = result;
+              } else if(lang === 'python'){
+                try{
+                  await loadPyodideIfNeeded();
+                } catch(err){
+                  outEl.textContent = 'Failed loading Python runtime: ' + err.message;
+                  return;
+                }
+                try{
+                  // Provide stdin via builtins.input replacement
+                  const patchedCode = `
+import sys
+from js import console
+stdin_data = """${escapeBackticksForPython(stdin)}"""
+_lines = iter(stdin_data.splitlines())
+def input():
+    try:
+        return next(_lines)
+    except StopIteration:
+        raise EOFError
+# user code starts
+${code}
+# user code ends
+`;
+                  const pyOut = await pyodide.runPythonAsync(`
+import sys, io
+buf = io.StringIO()
+old_stdout = sys.stdout
+old_stdin = sys.stdin
+sys.stdout = buf
+sys.stdin = io.StringIO("""${escapeBackticksForPython(stdin)}""")
+try:
+    exec(${JSON.stringify(code)}, {})
+except Exception as e:
+    import traceback
+    traceback.print_exc(file=buf)
+finally:
+    sys.stdout = old_stdout
+result = buf.getvalue()
+result
+                  `);
+                  outEl.textContent = String(pyOut);
+                } catch(pyErr){
+                  outEl.textContent = 'Python error: ' + (pyErr && pyErr.message ? pyErr.message : String(pyErr));
+                }
+              } else {
+                // For languages requiring compilation (C/C++/Java/C#), call external compile API.
+                // We show a helpful message and provide example commented code below.
+                outEl.textContent = 'This language requires a server-side compiler (e.g. Judge0).\\nYou can plug-in a compile API endpoint. See comments in code for example.';
+                // Optional: attempt to call configured server endpoint if user configured one (not provided by default)
+                if(window.EXTERNAL_RUNNER && window.EXTERNAL_RUNNER.url){
+                  outEl.textContent = 'Running via configured server...';
+                  try{
+                    const res = await window.EXTERNAL_RUNNER.run({language: lang, source: code, stdin});
+                    outEl.textContent = res.output || (res.stderr || 'No output returned');
+                  } catch(e){
+                    outEl.textContent = 'Server compile error: ' + e.message;
+                  }
+                }
+              }
+            } catch(err){
+              outEl.textContent = 'Runtime error: ' + String(err);
+            }
+          });
+        } else {
+          // disabled run for topics > 3
+          runBtn.classList.add('disabled');
+          runBtn.title = 'Run disabled for this topic in demo. Enable server-side compile to run other topics/languages.';
+        }
+      });
+
+      updateProgressText(topic.id);
+    }
+
+    // small helpers
+    function updateProgressText(topicId){
+      const answered = topicAnsweredCount(topicId);
+      const total = topicTotalCount(topicId);
+      const el = document.getElementById('topicProgressText');
+      if(el) el.textContent = `Answered ${answered} / ${total}`;
+    }
+
+    // initial render & restore last topic if recent
+    renderTopics();
+    updateOverallProgress();
+    (function restoreLast(){
+      let best = null;
+      TOPICS_DATA.forEach(t=>{
+        const s = state.topics[t.id];
+        if(!s) return;
+        if(!best || (s.savedAt || 0) > (best.savedAt || 0)) best = {id:t.id, savedAt:s.savedAt};
+      });
+      if(best && best.id){
+        const ageDays = (Date.now() - (best.savedAt||0)) / (1000*60*60*24);
+        if(ageDays <= 30) openTopic(best.id);
+      }
+    })();
+
+    // save progress button
+    document.getElementById('saveProgress').addEventListener('click', ()=>{
+      if(!currentTopicId) return;
+      state.topics[currentTopicId].savedAt = Date.now();
+      saveState(state);
+      renderTopics();
+      updateOverallProgress();
+      alert('Progress saved locally.');
+    });
+
+    // reset all
+    document.getElementById('resetAll').addEventListener('click', ()=>{
+      if(!confirm('Reset all progress?')) return;
+      state = { topics: {} };
+      TOPICS_DATA.forEach(t=>{
+        state.topics[t.id] = {
+          codingAnswers: Array(t.coding.length).fill(""),
+          codingLangs: Array(t.coding.length).fill("python"),
+          savedAt: Date.now()
+        };
+      });
+      saveState(state);
+      currentTopicId = null;
+      mainTitle.textContent = 'Select a topic to start';
+      selectedName.textContent = '—';
+      quizCard.style.display = 'none';
+      renderTopics();
+      updateOverallProgress();
+      alert('All progress cleared.');
+    });
+
+    // export
+    document.getElementById('exportBtn').addEventListener('click', ()=>{
+      const dataStr = JSON.stringify(state, null, 2);
+      const blob = new Blob([dataStr], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'dsaRoadmap_export_coding_only_v3.json'; a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    function renderStatsGrid(){
+      statsGrid.innerHTML = '';
+      TOPICS_DATA.forEach(t=>{
+        const status = topicStatus(t.id);
+        const answered = topicAnsweredCount(t.id);
+        const total = topicTotalCount(t.id);
+        const card = document.createElement('div');
+        card.style.background = 'linear-gradient(180deg,#ffffff,#fbfdff)';
+        card.style.padding = '12px';
+        card.style.borderRadius = '10px';
+        card.style.boxShadow = '0 8px 20px rgba(2,6,23,0.03)';
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700;font-size:14px">${t.title}</div>
+            <div style="font-size:12px" class="${status==='complete'?'status-complete':status==='progress'?'status-progress':'status-incomplete'}">${
+              status==='complete'?'Complete':status==='progress'?'In Progress':'Incomplete'
+            }</div>
+          </div>
+          <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+            <div class="small">${answered}/${total} answered</div>
+            <div>
+              <button class="ghost" data-open="${t.id}">Open</button>
+            </div>
+          </div>
+        `;
+        statsGrid.appendChild(card);
+      });
+      Array.from(statsGrid.querySelectorAll('button[data-open]')).forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id = Number(btn.getAttribute('data-open'));
+          openTopic(id);
+          window.scrollTo({top:0,behavior:'smooth'});
+        });
+      });
+    }
+
+    // Utilities for running JS safely in an iframe
+    function runJSInIframe(code, stdin){
+      return new Promise((resolve)=>{
+        // create sandboxed iframe
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        // sandbox attributes: allow-scripts (no same-origin), no access to parent
+        iframe.sandbox = 'allow-scripts';
+        document.body.appendChild(iframe);
+
+        const doc = iframe.contentWindow.document;
+        // script to capture console.log and handle synchronous input
+        const runner = `
+          (function(){
+            // capture logs
+            var out = '';
+            console.log = function(){ out += Array.from(arguments).map(String).join(' ') + '\\n'; };
+            console.error = function(){ out += Array.from(arguments).map(String).join(' ') + '\\n'; };
+            try {
+              // provide a simple input() implementation reading from provided stdin lines
+              var _lines = ${JSON.stringify(stdin.split(/\r?\n/))};
+              var input = function(){ if(_lines.length===0) throw new Error('EOF'); return _lines.shift(); };
+
+              // execute user code
+              ${code}
+            } catch(e){
+              out += 'Error: ' + (e && e.message ? e.message : String(e)) + '\\n';
+            }
+            // pass output to parent
+            parent.postMessage({type:'code-run-result', out: out}, '*');
+          })();
+        `;
+        // listen for message result once
+        function handler(ev){
+          if(ev.source !== iframe.contentWindow) return;
+          if(ev.data && ev.data.type === 'code-run-result'){
+            window.removeEventListener('message', handler);
+            document.body.removeChild(iframe);
+            resolve(ev.data.out || '');
+          }
+        }
+        window.addEventListener('message', handler);
+        // write runner into iframe
+        doc.open();
+        doc.write('<script>' + runner + '<\/script>');
+        doc.close();
+      });
+    }
+
+    // Escape helpers
+    function escapeHtml(str){
+      if(!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function escapeBackticksForPython(s){
+      if(!s) return '';
+      return s.replace(/\\/g,'\\\\').replace(/\"\"\"/g,'\\"""');
+    }
+
+    // EXTERNAL RUNNER HOOK (optional)
+    // If you have a server-side compile API (Judge0 or similar), provide a window.EXTERNAL_RUNNER object
+    // with a run({language, source, stdin}) method returning { output, stderr, status }.
+    //
+    // Example skeleton for Judge0 (you must host your own instance or use a hosted one and provide key):
+    //
+    // window.EXTERNAL_RUNNER = {
+    //   url: 'https://judge0.yourdomain.com/submissions?base64_encoded=false&wait=true', // example
+    //   async run({language, source, stdin}) {
+    //     // Map 'language' to Judge0 language_id, e.g. 'c' -> 50, 'cpp' -> 54, 'java' -> 62, etc.
+    //     const languageMap = { c:50, cpp:54, java:62, csharp:51, python:71, javascript:63 };
+    //     const body = {
+    //       source_code: source,
+    //       stdin: stdin || '',
+    //       language_id: languageMap[language] || 71
+    //     };
+    //     const res = await fetch(this.url, {
+    //       method:'POST',
+    //       headers:{
+    //         'Content-Type':'application/json',
+    //         // 'X-RapidAPI-Key': 'YOUR_KEY'  // if provider requires
+    //       },
+    //       body: JSON.stringify(body)
+    //     });
+    //     if(!res.ok) throw new Error('Compile server error: ' + res.status);
+    //     const json = await res.json();
+    //     // judge0 returns stdout/stderr/compile_output, etc.
+    //     return { output: json.stdout || json.compile_output || json.stderr, stderr: json.stderr };
+    //   }
+    // };
+    //
+    // IMPORTANT: Do NOT hardcode API keys in client-side code for public deployments.
+    // Instead proxy requests via your backend to keep keys secret.
+
+  </script>
+</body>
+</html>
